@@ -24,11 +24,15 @@
 
     <header class="site-header">
       <a class="brand" href="../index.html">
-        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        </span>
+        <span class="brand-name">PDF<em>Kit</em></span>
       </a>
-      <div class="header-actions">
-        <button class="lang-btn" onclick="toggleLang()" id="lang-btn">🌐 العربية</button>
-      </div>
+      <button class="settings-btn" onclick="toggleLang()" aria-label="Language">🌐</button>
     </header>
 
     <main>
@@ -41,7 +45,7 @@
         </div>
 
         <div class="tool-panel">
-          <textarea class="tool-textarea" id="input" placeholder="Type or paste your text here..." data-en-placeholder="Type or paste your text here..." data-ar-placeholder="اكتب أو الصق نصك هنا..."></textarea>
+          <textarea class="tool-textarea" id="input" data-en="Type or paste your text here..." data-ar="اكتب أو الصق نصك هنا..."></textarea>
 
           <div class="options-row">
             <label>
@@ -80,10 +84,10 @@
 
         <section class="tool-content">
           <h2 data-en="What is Text to PDF?" data-ar="ما هو نص إلى PDF؟">What is Text to PDF?</h2>
-          <p data-en="Text to PDF is a free online tool that converts plain text into a PDF document. It works entirely in your browser — your text never leaves your device." data-ar="نص إلى PDF هو أداة مجانية تحوّل النص العادي إلى مستند PDF. تعمل بالكامل في متصفحك — نصك لا يغادر جهازك أبدًا.">Text to PDF is a free online tool that converts plain text into a PDF document.</p>
+          <p data-en="Text to PDF is a free online tool that converts plain text into a PDF document. It works entirely in your browser — your text never leaves your device." data-ar="نص إلى PDF أداة مجانية تحوّل النص العادي إلى مستند PDF. تعمل بالكامل في متصفحك — نصك لا يغادر جهازك أبدًا.">Text to PDF is a free online tool that converts plain text into a PDF document.</p>
 
           <h2 data-en="How to use it" data-ar="كيف تستخدمه">How to use it</h2>
-          <ol data-en-list data-ar-list>
+          <ol>
             <li data-en="Type or paste your text." data-ar="اكتب أو الصق نصك.">Type or paste your text.</li>
             <li data-en="Choose font size, alignment, and orientation." data-ar="اختر حجم الخط، المحاذاة، والاتجاه.">Choose font size, alignment, and orientation.</li>
             <li data-en="Click Generate PDF." data-ar="اضغط إنشاء PDF.">Click Generate PDF.</li>
@@ -94,9 +98,15 @@
     </main>
 
     <footer class="site-footer">
-      <span class="brand brand-small">
-        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
-      </span>
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        </span>
+        <span class="brand-name">PDF<em>Kit</em></span>
+      </a>
       <p data-en="© 2026 PDFKit." data-ar="© 2026 PDFKit.">© 2026 PDFKit.</p>
     </footer>
 
@@ -140,7 +150,7 @@
           y += fontSize * 1.5;
         });
 
-        doc.save("pdfkit-" + Date.now() + ".pdf");
+        doc.save("pdfkit-text-" + Date.now() + ".pdf");
       }
 
       function clearAll() {
@@ -148,4 +158,4 @@
       }
     </script>
   </body>
-  </html>
+</html>
