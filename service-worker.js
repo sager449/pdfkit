@@ -1,39 +1,90 @@
-const CACHE_NAME = "pdfkit-v1";
-const urlsToCache = [
-  "/",
-  "/index.html",
-  "/css/style.css",
-  "/css/tool.css",
-  "/js/lang.js",
-  "/manifest.json",
-  "/tools/text-to-pdf.html",
-  "/tools/images-to-pdf.html",
-  "/tools/merge-pdf.html",
-  "/tools/split-pdf.html"
+/* PDFKit PWA service worker */
+const CACHE_NAME = 'pdfkit-cache-v1';
+
+const CORE_ASSETS = [
+  '/',
+  '/offline.html',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
-self.addEventListener("install", (event) => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(CORE_ASSETS))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-self.addEventListener("activate", (event) => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((names) =>
-      Promise.all(
-        names.map((name) => {
-          if (name !== CACHE_NAME) return caches.delete(name);
+    caches.keys()
+      .then((keys) => Promise.all(
+        keys
+          .filter((key) => key !== CACHE_NAME)
+          .map((key) => caches.delete(key))
+      ))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  const request = event.request;
+
+  if (request.method !== 'GET') {
+    return;
+  }
+
+  const url = new URL(request.url);
+
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // HTML navigations: network first, then cached page, then offline fallback.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+
+          caches.open(CACHE_NAME)
+            .then((cache) => cache.put(request, copy));
+
+          return response;
         })
-      )
-    )
-  );
-  self.clients.claim();
-});
+        .catch(() => {
+          return caches.match(request)
+            .then((cached) => {
+              return cached || caches.match('/offline.html');
+            });
+        })
+    );
 
-self.addEventListener("fetch", (event) => {
+    return;
+  }
+
+  // Static assets: cache first, then network and runtime cache.
   event.respondWith(
-    caches.match(event.request).then((response) => response || fetch(event.request))
+    caches.match(request)
+      .then((cached) => {
+        if (cached) {
+          return cached;
+        }
+
+        return fetch(request)
+          .then((response) => {
+            if (response.ok || response.type === 'opaque') {
+              const copy = response.clone();
+
+              caches.open(CACHE_NAME)
+                .then((cache) => cache.put(request, copy));
+            }
+
+            return response;
+          });
+      })
   );
 });
+                
