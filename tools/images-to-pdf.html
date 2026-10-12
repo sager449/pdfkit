@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Images to PDF — Convert JPG, PNG to PDF Online Free | PDFKit</title>
+    <meta name="description" content="Free online images to PDF converter. Turn JPG, PNG, WebP into a single PDF instantly. Reorder, rotate, and download. No signup, 100% private." />
+    <link rel="canonical" href="https://pdfkit-xi.vercel.app/tools/images-to-pdf.html" />
+    <meta property="og:title" content="Images to PDF — Convert JPG, PNG to PDF Online Free" />
+    <meta property="og:description" content="Turn JPG, PNG, WebP into a single PDF instantly. Free, private, no signup." />
+    <meta property="og:url" content="https://pdfkit-xi.vercel.app/tools/images-to-pdf.html" />
+    <meta property="og:type" content="website" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/tool.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+      .drop-zone {
+        border: 2px dashed var(--border);
+        border-radius: 16px;
+        padding: 48px 24px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.25s;
+        background: var(--bg);
+        margin-bottom: 20px;
+      }
+      .drop-zone:hover, .drop-zone.dragover {
+        border-color: var(--accent);
+        background: var(--bg-hover);
+      }
+      .drop-zone-icon { font-size: 48px; display: block; margin-bottom: 12px; }
+      .drop-zone p { color: var(--text-muted); margin-bottom: 4px; }
+      .drop-zone small { color: var(--text-muted); font-size: 13px; }
+      .drop-zone input { display: none; }
+
+      .images-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .image-item {
+        position: relative;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        aspect-ratio: 1;
+        cursor: grab;
+      }
+
+      .image-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .image-item .remove {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 26px;
+        height: 26px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .image-item .num {
+        position: absolute;
+        bottom: 6px;
+        left: 6px;
+        background: rgba(0,0,0,0.75);
+        color: #fff;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      html[dir="rtl"] .image-item .remove { right: auto; left: 6px; }
+      html[dir="rtl"] .image-item .num { left: auto; right: 6px; }
+    </style>
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
+      </a>
+      <div class="header-actions">
+        <button class="lang-btn" onclick="toggleLang()" id="lang-btn">🌐 العربية</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="tool-container">
+        <a class="back-link" href="../index.html" data-en="← All tools" data-ar="← كل الأدوات">← All tools</a>
+
+        <div class="tool-header">
+          <h1 data-en="Images to PDF" data-ar="صور إلى PDF">Images to PDF</h1>
+          <p data-en="Combine JPG, PNG, and WebP images into a single PDF." data-ar="اجمع صور JPG وPNG وWebP في ملف PDF واحد.">Combine JPG, PNG, and WebP images into a single PDF.</p>
+        </div>
+
+        <div class="tool-panel">
+          <label class="drop-zone" id="drop-zone">
+            <input type="file" id="file-input" accept="image/*" multiple />
+            <span class="drop-zone-icon">🖼️</span>
+            <p data-en="Click or drop images here" data-ar="انقر أو اسحب الصور هنا">Click or drop images here</p>
+            <small data-en="JPG, PNG, WebP — multiple files allowed" data-ar="JPG, PNG, WebP — يمكن اختيار عدة ملفات">JPG, PNG, WebP — multiple files allowed</small>
+          </label>
+
+          <div class="images-list" id="images-list"></div>
+
+          <div class="options-row">
+            <label>
+              <span data-en="Page size" data-ar="حجم الصفحة">Page size</span>
+              <select id="page-size">
+                <option value="fit" data-en="Fit to image" data-ar="مطابق للصورة">Fit to image</option>
+                <option value="a4" data-en="A4" data-ar="A4">A4</option>
+                <option value="letter" data-en="Letter" data-ar="Letter">Letter</option>
+              </select>
+            </label>
+            <label>
+              <span data-en="Orientation" data-ar="الاتجاه">Orientation</span>
+              <select id="orientation">
+                <option value="auto" data-en="Auto" data-ar="تلقائي">Auto</option>
+                <option value="portrait" data-en="Portrait" data-ar="طولي">Portrait</option>
+                <option value="landscape" data-en="Landscape" data-ar="عرضي">Landscape</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="tool-actions">
+            <button class="btn btn-primary" onclick="generatePDF()" data-en="Generate PDF" data-ar="إنشاء PDF">Generate PDF</button>
+            <button class="btn btn-secondary" onclick="clearAll()" data-en="Clear all" data-ar="مسح الكل">Clear all</button>
+          </div>
+        </div>
+
+        <section class="tool-content">
+          <h2 data-en="What is Images to PDF?" data-ar="ما هو صور إلى PDF؟">What is Images to PDF?</h2>
+          <p data-en="Images to PDF is a free online tool that combines multiple images into one PDF document. Everything runs in your browser — your images never leave your device." data-ar="صور إلى PDF أداة مجانية تجمع عدة صور في مستند PDF واحد. كل شيء يعمل في متصفحك — صورك لا تغادر جهازك أبدًا.">Images to PDF is a free online tool that combines multiple images into one PDF document.</p>
+
+          <h2 data-en="How to use it" data-ar="كيف تستخدمه">How to use it</h2>
+          <ol>
+            <li data-en="Click or drag your images into the drop zone." data-ar="انقر أو اسحب صورك إلى منطقة الرفع.">Click or drag your images into the drop zone.</li>
+            <li data-en="Reorder by dragging, remove any you don't want." data-ar="أعد الترتيب بالسحب، واحذف ما لا تريده.">Reorder by dragging, remove any you don't want.</li>
+            <li data-en="Choose page size and orientation." data-ar="اختر حجم الصفحة والاتجاه.">Choose page size and orientation.</li>
+            <li data-en="Click Generate PDF and download." data-ar="اضغط إنشاء PDF وحمّل الملف.">Click Generate PDF and download.</li>
+          </ol>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <span class="brand brand-small">
+        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
+      </span>
+      <p data-en="© 2026 PDFKit." data-ar="© 2026 PDFKit.">© 2026 PDFKit.</p>
+    </footer>
+
+    <script src="../js/lang.js"></script>
+    <script>
+      const dropZone = document.getElementById("drop-zone");
+      const fileInput = document.getElementById("file-input");
+      const list = document.getElementById("images-list");
+      let images = []; // { id, file, url, width, height }
+
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+      });
+      dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        addFiles(e.dataTransfer.files);
+      });
+
+      fileInput.addEventListener("change", (e) => addFiles(e.target.files));
+
+      function addFiles(files) {
+        Array.from(files).forEach((file) => {
+          if (!file.type.startsWith("image/")) return;
+          const url = URL.createObjectURL(file);
+          const img = new Image();
+          img.onload = () => {
+            images.push({
+              id: Date.now() + Math.random(),
+              file: file,
+              url: url,
+              width: img.naturalWidth,
+              height: img.naturalHeight,
+            });
+            render();
+          };
+          img.src = url;
+        });
+      }
+
+      function removeImage(id) {
+        images = images.filter((i) => i.id !== id);
+        render();
+      }
+
+      function render() {
+        list.innerHTML = "";
+        images.forEach((img, i) => {
+          const div = document.createElement("div");
+          div.className = "image-item";
+          div.innerHTML = `
+            <img src="${img.url}" alt="" />
+            <button class="remove" onclick="removeImage(${img.id})">×</button>
+            <span class="num">${i + 1}</span>
+          `;
+          list.appendChild(div);
+        });
+      }
+
+      function generatePDF() {
+        if (images.length === 0) return;
+
+        const { jsPDF } = window.jspdf;
+        const pageSize = document.getElementById("page-size").value;
+        const orientation = document.getElementById("orientation").value;
+
+        let doc = null;
+
+        images.forEach((img, index) => {
+          let pdfW, pdfH, orientationFinal;
+
+          if (pageSize === "fit") {
+            // Match page to image at 72 DPI
+            const pxToPt = 0.75;
+            pdfW = img.width * pxToPt;
+            pdfH = img.height * pxToPt;
+            orientationFinal = pdfW > pdfH ? "landscape" : "portrait";
+          } else {
+            // A4 / Letter
+            const sizes = { a4: [595.28, 841.89], letter: [612, 792] };
+            let [w, h] = sizes[pageSize];
+            if (orientation === "landscape" || (orientation === "auto" && img.width > img.height)) {
+              [w, h] = [h, w];
+            }
+            pdfW = w;
+            pdfH = h;
+            orientationFinal = w > h ? "landscape" : "portrait";
+          }
+
+          if (index === 0) {
+            doc = new jsPDF({
+              orientation: orientationFinal,
+              unit: "pt",
+              format: pageSize === "fit" ? [pdfW, pdfH] : pageSize,
+            });
+          } else {
+            doc.addPage(
+              pageSize === "fit" ? [pdfW, pdfH] : pageSize,
+              orientationFinal
+            );
+          }
+
+          const pageW = doc.internal.pageSize.getWidth();
+          const pageH = doc.internal.pageSize.getHeight();
+          const margin = pageSize === "fit" ? 0 : 20;
+
+          // Fit image into page (preserve aspect ratio)
+          const availW = pageW - margin * 2;
+          const availH = pageH - margin * 2;
+          const ratio = Math.min(availW / img.width, availH / img.height);
+          const drawW = img.width * ratio;
+          const drawH = img.height * ratio;
+          const x = (pageW - drawW) / 2;
+          const y = (pageH - drawH) / 2;
+
+          const format = img.file.type === "image/png" ? "PNG" : "JPEG";
+          doc.addImage(img.url, format, x, y, drawW, drawH);
+        });
+
+        doc.save("pdfkit-images-" + Date.now() + ".pdf");
+      }
+
+      function clearAll() {
+        images = [];
+        fileInput.value = "";
+        render();
+      }
+    </script>
+  </body>
+</html>
