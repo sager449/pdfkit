@@ -1,0 +1,25 @@
+{
+  "name": "PDFKit — Free PDF Tools",
+  "short_name": "PDFKit",
+  "description": "Free online PDF tools — merge, split, convert. 100% private, runs in your browser.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2c2c2c",
+  "theme_color": "#2c2c2c",
+  "orientation": "portrait",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
