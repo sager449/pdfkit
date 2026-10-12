@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Merge PDF — Combine PDF Files Online Free | PDFKit</title>
+    <meta name="description" content="Free online PDF merger. Combine multiple PDF files into one document instantly. Reorder pages, drag and drop. No signup, 100% private." />
+    <link rel="canonical" href="https://pdfkit-xi.vercel.app/tools/merge-pdf.html" />
+    <meta property="og:title" content="Merge PDF — Combine PDF Files Online Free" />
+    <meta property="og:description" content="Combine multiple PDF files into one document instantly. Free, private, no signup." />
+    <meta property="og:url" content="https://pdfkit-xi.vercel.app/tools/merge-pdf.html" />
+    <meta property="og:type" content="website" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/tool.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+    <style>
+      .drop-zone {
+        border: 2px dashed var(--border);
+        border-radius: 16px;
+        padding: 48px 24px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.25s;
+        background: var(--bg);
+        margin-bottom: 20px;
+      }
+      .drop-zone:hover, .drop-zone.dragover {
+        border-color: var(--accent);
+        background: var(--bg-hover);
+      }
+      .drop-zone-icon { font-size: 48px; display: block; margin-bottom: 12px; }
+      .drop-zone p { color: var(--text-muted); margin-bottom: 4px; }
+      .drop-zone small { color: var(--text-muted); font-size: 13px; }
+      .drop-zone input { display: none; }
+
+      .pdf-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .pdf-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 18px;
+        cursor: grab;
+        transition: 0.2s;
+      }
+
+      .pdf-item:hover { border-color: var(--accent); }
+
+      .pdf-item.dragging { opacity: 0.4; }
+      .pdf-item.drag-over { border-color: var(--accent); background: var(--bg-hover); }
+
+      .pdf-icon { font-size: 28px; }
+
+      .pdf-info { flex: 1; min-width: 0; }
+
+      .pdf-name {
+        font-weight: 700;
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .pdf-meta {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+
+      .pdf-num {
+        background: var(--accent);
+        color: #fff;
+        font-weight: 800;
+        font-size: 13px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .pdf-remove {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+      }
+
+      .pdf-remove:hover {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
+      </a>
+      <div class="header-actions">
+        <button class="lang-btn" onclick="toggleLang()" id="lang-btn">🌐 العربية</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="tool-container">
+        <a class="back-link" href="../index.html" data-en="← All tools" data-ar="← كل الأدوات">← All tools</a>
+
+        <div class="tool-header">
+          <h1 data-en="Merge PDF" data-ar="دمج PDF">Merge PDF</h1>
+          <p data-en="Combine multiple PDF files into a single document." data-ar="اجمع عدة ملفات PDF في مستند واحد.">Combine multiple PDF files into a single document.</p>
+        </div>
+
+        <div class="tool-panel">
+          <label class="drop-zone" id="drop-zone">
+            <input type="file" id="file-input" accept="application/pdf" multiple />
+            <span class="drop-zone-icon">📄</span>
+            <p data-en="Click or drop PDF files here" data-ar="انقر أو اسحب ملفات PDF هنا">Click or drop PDF files here</p>
+            <small data-en="Multiple PDF files allowed" data-ar="يمكن اختيار عدة ملفات PDF">Multiple PDF files allowed</small>
+          </label>
+
+          <div class="pdf-list" id="pdf-list"></div>
+
+          <div class="tool-actions">
+            <button class="btn btn-primary" onclick="mergePDFs()" data-en="Merge PDFs" data-ar="دمج الملفات">Merge PDFs</button>
+            <button class="btn btn-secondary" onclick="clearAll()" data-en="Clear all" data-ar="مسح الكل">Clear all</button>
+          </div>
+
+          <p id="status" style="margin-top: 16px; color: var(--text-muted); font-size: 14px;"></p>
+        </div>
+
+        <section class="tool-content">
+          <h2 data-en="What is Merge PDF?" data-ar="ما هو دمج PDF؟">What is Merge PDF?</h2>
+          <p data-en="Merge PDF is a free online tool that combines multiple PDF files into one document. It works entirely in your browser — your files never leave your device." data-ar="دمج PDF أداة مجانية تجمع عدة ملفات PDF في مستند واحد. تعمل بالكامل في متصفحك — ملفاتك لا تغادر جهازك أبدًا.">Merge PDF is a free online tool that combines multiple PDF files into one document.</p>
+
+          <h2 data-en="How to use it" data-ar="كيف تستخدمه">How to use it</h2>
+          <ol>
+            <li data-en="Click or drag your PDF files into the drop zone." data-ar="انقر أو اسحب ملفات PDF إلى منطقة الرفع.">Click or drag your PDF files into the drop zone.</li>
+            <li data-en="Reorder by dragging." data-ar="أعد الترتيب بالسحب.">Reorder by dragging.</li>
+            <li data-en="Click Merge PDFs." data-ar="اضغط دمج الملفات.">Click Merge PDFs.</li>
+            <li data-en="Your merged PDF downloads automatically." data-ar="يُحمّل ملف PDF المدمج تلقائيًا.">Your merged PDF downloads automatically.</li>
+          </ol>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <span class="brand brand-small">
+        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
+      </span>
+      <p data-en="© 2026 PDFKit." data-ar="© 2026 PDFKit.">© 2026 PDFKit.</p>
+    </footer>
+
+    <script src="../js/lang.js"></script>
+    <script>
+      const { PDFDocument } = PDFLib;
+      const dropZone = document.getElementById("drop-zone");
+      const fileInput = document.getElementById("file-input");
+      const listEl = document.getElementById("pdf-list");
+      const status = document.getElementById("status");
+
+      let files = []; // { id, file, name, size, pages }
+      let dragId = null;
+
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+      });
+      dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        addFiles(e.dataTransfer.files);
+      });
+      fileInput.addEventListener("change", (e) => addFiles(e.target.files));
+
+      async function addFiles(newFiles) {
+        for (const file of Array.from(newFiles)) {
+          if (file.type !== "application/pdf") continue;
+          try {
+            const bytes = await file.arrayBuffer();
+            const pdf = await PDFDocument.load(bytes, { ignoreEncryption: true });
+            files.push({
+              id: Date.now() + Math.random(),
+              file: file,
+              name: file.name,
+              size: file.size,
+              pages: pdf.getPageCount(),
+            });
+          } catch (err) {
+            console.error("Failed to read PDF:", file.name, err);
+            alert("Could not read: " + file.name);
+          }
+        }
+        render();
+      }
+
+      function removeFile(id) {
+        files = files.filter((f) => f.id !== id);
+        render();
+      }
+
+      function formatSize(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+      }
+
+      function render() {
+        listEl.innerHTML = "";
+        files.forEach((f, i) => {
+          const div = document.createElement("div");
+          div.className = "pdf-item";
+          div.draggable = true;
+          div.dataset.id = f.id;
+          div.innerHTML = `
+            <span class="pdf-num">${i + 1}</span>
+            <span class="pdf-icon">📄</span>
+            <div class="pdf-info">
+              <div class="pdf-name">${f.name}</div>
+              <div class="pdf-meta">${f.pages} page${f.pages !== 1 ? "s" : ""} · ${formatSize(f.size)}</div>
+            </div>
+            <button class="pdf-remove" onclick="removeFile(${f.id})">×</button>
+          `;
+
+          div.addEventListener("dragstart", () => {
+            dragId = f.id;
+            div.classList.add("dragging");
+          });
+          div.addEventListener("dragend", () => {
+            div.classList.remove("dragging");
+            dragId = null;
+          });
+          div.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            div.classList.add("drag-over");
+          });
+          div.addEventListener("dragleave", () => div.classList.remove("drag-over"));
+          div.addEventListener("drop", (e) => {
+            e.preventDefault();
+            div.classList.remove("drag-over");
+            if (dragId === null || dragId === f.id) return;
+            const fromIdx = files.findIndex((x) => x.id === dragId);
+            const toIdx = files.findIndex((x) => x.id === f.id);
+            const [moved] = files.splice(fromIdx, 1);
+            files.splice(toIdx, 0, moved);
+            render();
+          });
+
+          listEl.appendChild(div);
+        });
+      }
+
+      async function mergePDFs() {
+        if (files.length < 2) {
+          status.textContent = "Please add at least 2 PDF files.";
+          return;
+        }
+
+        status.textContent = "Merging...";
+
+        try {
+          const merged = await PDFDocument.create();
+          for (const f of files) {
+            const bytes = await f.file.arrayBuffer();
+            const pdf = await PDFDocument.load(bytes, { ignoreEncryption: true });
+            const pages = await merged.copyPages(pdf, pdf.getPageIndices());
+            pages.forEach((p) => merged.addPage(p));
+          }
+          const out = await merged.save();
+          const blob = new Blob([out], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "pdfkit-merged-" + Date.now() + ".pdf";
+          a.click();
+          URL.revokeObjectURL(url);
+          status.textContent = "✅ Merged successfully!";
+        } catch (err) {
+          console.error(err);
+          status.textContent = "❌ Error: " + err.message;
+        }
+      }
+
+      function clearAll() {
+        files = [];
+        fileInput.value = "";
+        status.textContent = "";
+        render();
+      }
+    </script>
+  </body>
+</html>
