@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDFKit — Free Online PDF Tools</title>
+    <meta name="description" content="Free online PDF tools. Merge, split, convert images and text to PDF. No signup, no limits, 100% private." />
+    <link rel="canonical" href="https://pdfkit-xi.vercel.app/" />
+    <meta property="og:title" content="PDFKit — Free Online PDF Tools" />
+    <meta property="og:description" content="Merge, split, convert images and text to PDF. No signup, no limits, 100% private." />
+    <meta property="og:url" content="https://pdfkit-xi.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#2c2c2c" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
+      </a>
+      <div class="header-actions">
+        <button class="lang-btn" onclick="toggleLang()" id="lang-btn">🌐 العربية</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1 data-en="Free Online PDF Tools" data-ar="أدوات PDF مجانية">Free Online PDF Tools</h1>
+        <p data-en="Merge, split, convert — all in your browser. No signup, no limits, 100% private." data-ar="دمج، تقسيم، تحويل — كل شيء في متصفحك. بدون تسجيل، بدون حدود، 100% خصوصية.">Merge, split, convert — all in your browser. No signup, no limits, 100% private.</p>
+      </section>
+
+      <section class="tools-grid" id="tools">
+        <a class="tool-card" href="tools/text-to-pdf.html">
+          <span class="tool-icon">📄</span>
+          <span class="tool-name" data-en="Text to PDF" data-ar="نص إلى PDF">Text to PDF</span>
+        </a>
+        <a class="tool-card" href="tools/images-to-pdf.html">
+          <span class="tool-icon">🖼️</span>
+          <span class="tool-name" data-en="Images to PDF" data-ar="صور إلى PDF">Images to PDF</span>
+        </a>
+        <a class="tool-card" href="tools/merge-pdf.html">
+          <span class="tool-icon">🔗</span>
+          <span class="tool-name" data-en="Merge PDF" data-ar="دمج PDF">Merge PDF</span>
+        </a>
+        <a class="tool-card" href="tools/split-pdf.html">
+          <span class="tool-icon">✂️</span>
+          <span class="tool-name" data-en="Split PDF" data-ar="تقسيم PDF">Split PDF</span>
+        </a>
+      </section>
+
+      <section class="features">
+        <div class="feature">
+          <span class="feature-icon">🔒</span>
+          <h3 data-en="100% Private" data-ar="خصوصية كاملة">100% Private</h3>
+          <p data-en="Your files never leave your browser." data-ar="ملفاتك لا تغادر متصفحك أبدًا.">Your files never leave your browser.</p>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">⚡</span>
+          <h3 data-en="Instant" data-ar="فوري">Instant</h3>
+          <p data-en="No upload, no waiting, no limits." data-ar="بدون رفع، بدون انتظار، بدون حدود.">No upload, no waiting, no limits.</p>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">🆓</span>
+          <h3 data-en="Free Forever" data-ar="مجاني للأبد">Free Forever</h3>
+          <p data-en="No signup, no daily limits, no ads." data-ar="بدون تسجيل، بدون حد يومي، بدون إعلانات.">No signup, no daily limits, no ads.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span class="brand brand-small">
+        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
+      </span>
+      <p data-en="© 2026 PDFKit. All rights reserved." data-ar="© 2026 PDFKit. جميع الحقوق محفوظة.">© 2026 PDFKit.</p>
+    </footer>
+
+    <script>
+      const LANG_KEY = "pdfkit-lang";
+
+      function applyLang(lang) {
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+        document.querySelectorAll("[data-en][data-ar]").forEach((el) => {
+          el.textContent = el.getAttribute("data-" + lang);
+        });
+        document.getElementById("lang-btn").textContent = lang === "ar" ? "🌐 English" : "🌐 العربية";
+      }
+
+      function toggleLang() {
+        const current = localStorage.getItem(LANG_KEY) || "en";
+        const next = current === "en" ? "ar" : "en";
+        localStorage.setItem(LANG_KEY, next);
+        applyLang(next);
+      }
+
+      applyLang(localStorage.getItem(LANG_KEY) || "en");
+    </script>
+  </body>
+   </html>
