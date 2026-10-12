@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PDFKit — Free Online PDF Tools</title>
-    <meta name="description" content="Free online PDF tools. Merge, split, convert images and text to PDF. No signup, no limits, 100% private." />
+    <meta name="description" content="Free online PDF tools. Merge, split, convert images and text to PDF. No signup, no limits, 100% private — everything runs in your browser." />
     <link rel="canonical" href="https://pdfkit-xi.vercel.app/" />
     <meta property="og:title" content="PDFKit — Free Online PDF Tools" />
     <meta property="og:description" content="Merge, split, convert images and text to PDF. No signup, no limits, 100% private." />
@@ -15,91 +15,130 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#2c2c2c" />
+    <meta name="theme-color" content="#f5f5f5" />
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
 
     <header class="site-header">
       <a class="brand" href="index.html">
-        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        </span>
+        <span class="brand-name">PDF<em>Kit</em></span>
       </a>
-      <div class="header-actions">
-        <button class="lang-btn" onclick="toggleLang()" id="lang-btn">🌐 العربية</button>
-      </div>
+      <button class="settings-btn" id="settings-btn" aria-label="Settings">⚙️</button>
     </header>
 
     <main>
       <section class="hero">
-        <h1 data-en="Free Online PDF Tools" data-ar="أدوات PDF مجانية">Free Online PDF Tools</h1>
-        <p data-en="Merge, split, convert — all in your browser. No signup, no limits, 100% private." data-ar="دمج، تقسيم، تحويل — كل شيء في متصفحك. بدون تسجيل، بدون حدود، 100% خصوصية.">Merge, split, convert — all in your browser. No signup, no limits, 100% private.</p>
+        <p class="hero-tag" data-en="● FREE · FAST · NO SIGNUP" data-ar="● مجاني · سريع · بدون تسجيل">● FREE · FAST · NO SIGNUP</p>
+        <h1 data-en="PDF tools that<br><span>just work</span>." data-ar="أدوات PDF<br><span>تعمل فحسب</span>.">PDF tools that<br><span>just work</span>.</h1>
+        <p class="hero-sub" data-en="Merge, split, convert, and edit your PDFs instantly — in English and Arabic. No account, no upload, no waiting." data-ar="دمج، تقسيم، تحويل، وتعديل ملفات PDF فورًا — بالعربية والإنجليزية. بدون حساب، بدون رفع، بدون انتظار.">Merge, split, convert, and edit your PDFs instantly — in English and Arabic. No account, no upload, no waiting.</p>
       </section>
 
-      <section class="tools-grid" id="tools">
-        <a class="tool-card" href="tools/text-to-pdf.html">
-          <span class="tool-icon">📄</span>
-          <span class="tool-name" data-en="Text to PDF" data-ar="نص إلى PDF">Text to PDF</span>
-        </a>
-        <a class="tool-card" href="tools/images-to-pdf.html">
-          <span class="tool-icon">🖼️</span>
-          <span class="tool-name" data-en="Images to PDF" data-ar="صور إلى PDF">Images to PDF</span>
-        </a>
-        <a class="tool-card" href="tools/merge-pdf.html">
-          <span class="tool-icon">🔗</span>
-          <span class="tool-name" data-en="Merge PDF" data-ar="دمج PDF">Merge PDF</span>
-        </a>
-        <a class="tool-card" href="tools/split-pdf.html">
-          <span class="tool-icon">✂️</span>
-          <span class="tool-name" data-en="Split PDF" data-ar="تقسيم PDF">Split PDF</span>
-        </a>
-      </section>
+      <section class="tools-section">
+        <h2 class="section-title" data-en="ALL TOOLS" data-ar="كل الأدوات">ALL TOOLS</h2>
 
-      <section class="features">
-        <div class="feature">
-          <span class="feature-icon">🔒</span>
-          <h3 data-en="100% Private" data-ar="خصوصية كاملة">100% Private</h3>
-          <p data-en="Your files never leave your browser." data-ar="ملفاتك لا تغادر متصفحك أبدًا.">Your files never leave your browser.</p>
-        </div>
-        <div class="feature">
-          <span class="feature-icon">⚡</span>
-          <h3 data-en="Instant" data-ar="فوري">Instant</h3>
-          <p data-en="No upload, no waiting, no limits." data-ar="بدون رفع، بدون انتظار، بدون حدود.">No upload, no waiting, no limits.</p>
-        </div>
-        <div class="feature">
-          <span class="feature-icon">🆓</span>
-          <h3 data-en="Free Forever" data-ar="مجاني للأبد">Free Forever</h3>
-          <p data-en="No signup, no daily limits, no ads." data-ar="بدون تسجيل، بدون حد يومي، بدون إعلانات.">No signup, no daily limits, no ads.</p>
+        <div class="tools-list">
+          <a class="tool-card" href="tools/merge-pdf.html">
+            <div class="tool-icon">🔗</div>
+            <div class="tool-info">
+              <div class="tool-name" data-en="Merge PDF" data-ar="دمج PDF">Merge PDF</div>
+              <div class="tool-desc" data-en="Combine multiple PDF files into one." data-ar="اجمع عدة ملفات PDF في ملف واحد.">Combine multiple PDF files into one.</div>
+            </div>
+            <div class="tool-arrow">→</div>
+          </a>
+
+          <a class="tool-card" href="tools/split-pdf.html">
+            <div class="tool-icon">✂️</div>
+            <div class="tool-info">
+              <div class="tool-name" data-en="Split PDF" data-ar="تقسيم PDF">Split PDF</div>
+              <div class="tool-desc" data-en="Split pages or extract a range." data-ar="قسّم الصفحات أو استخرج نطاقًا.">Split pages or extract a range.</div>
+            </div>
+            <div class="tool-arrow">→</div>
+          </a>
+
+          <a class="tool-card" href="tools/images-to-pdf.html">
+            <div class="tool-icon">🖼️</div>
+            <div class="tool-info">
+              <div class="tool-name" data-en="Images to PDF" data-ar="صور إلى PDF">Images to PDF</div>
+              <div class="tool-desc" data-en="Convert JPG, PNG, WebP to PDF." data-ar="حوّل JPG وPNG وWebP إلى PDF.">Convert JPG, PNG, WebP to PDF.</div>
+            </div>
+            <div class="tool-arrow">→</div>
+          </a>
+
+          <a class="tool-card" href="tools/text-to-pdf.html">
+            <div class="tool-icon">📄</div>
+            <div class="tool-info">
+              <div class="tool-name" data-en="Text to PDF" data-ar="نص إلى PDF">Text to PDF</div>
+              <div class="tool-desc" data-en="Turn any text into a clean PDF." data-ar="حوّل أي نص إلى PDF نظيف.">Turn any text into a clean PDF.</div>
+            </div>
+            <div class="tool-arrow">→</div>
+          </a>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <span class="brand brand-small">
-        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
-      </span>
+      <a class="brand" href="index.html">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        </span>
+        <span class="brand-name">PDF<em>Kit</em></span>
+      </a>
       <p data-en="© 2026 PDFKit. All rights reserved." data-ar="© 2026 PDFKit. جميع الحقوق محفوظة.">© 2026 PDFKit.</p>
     </footer>
 
+    <!-- Settings Modal -->
+    <div class="settings-modal" id="settings-modal" hidden>
+      <div class="modal-backdrop" data-close-settings></div>
+      <div class="settings-panel">
+        <button class="modal-close" type="button" data-close-settings>×</button>
+        <h3 class="settings-title" data-en="Settings" data-ar="الإعدادات">Settings</h3>
+
+        <p class="settings-label" data-en="Language" data-ar="اللغة">Language</p>
+        <div class="theme-options">
+          <button class="theme-btn active" data-lang="en">English</button>
+          <button class="theme-btn" data-lang="ar">العربية</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/lang.js"></script>
     <script>
-      const LANG_KEY = "pdfkit-lang";
+      const settingsModal = document.getElementById("settings-modal");
+      const settingsBtn = document.getElementById("settings-btn");
 
-      function applyLang(lang) {
-        document.documentElement.lang = lang;
-        document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-        document.querySelectorAll("[data-en][data-ar]").forEach((el) => {
-          el.textContent = el.getAttribute("data-" + lang);
+      settingsBtn.addEventListener("click", () => settingsModal.hidden = false);
+      settingsModal.querySelectorAll("[data-close-settings]").forEach((el) => {
+        el.addEventListener("click", () => settingsModal.hidden = true);
+      });
+
+      document.querySelectorAll(".theme-btn[data-lang]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          applyLang(btn.dataset.lang);
+          localStorage.setItem("pdfkit-lang", btn.dataset.lang);
+          document.querySelectorAll(".theme-btn[data-lang]").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
         });
-        document.getElementById("lang-btn").textContent = lang === "ar" ? "🌐 English" : "🌐 العربية";
-      }
+      });
 
-      function toggleLang() {
-        const current = localStorage.getItem(LANG_KEY) || "en";
-        const next = current === "en" ? "ar" : "en";
-        localStorage.setItem(LANG_KEY, next);
-        applyLang(next);
-      }
+      // Mark current lang as active
+      const currentLang = localStorage.getItem("pdfkit-lang") || "en";
+      document.querySelectorAll(".theme-btn[data-lang]").forEach((b) => {
+        b.classList.toggle("active", b.dataset.lang === currentLang);
+      });
 
-      applyLang(localStorage.getItem(LANG_KEY) || "en");
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") settingsModal.hidden = true;
+      });
     </script>
   </body>
-   </html>
+  </html>
