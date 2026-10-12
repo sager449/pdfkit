@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Split PDF — Split PDF Pages Online Free | PDFKit</title>
+    <meta name="description" content="Free online PDF splitter. Split PDF pages into separate files or extract a range instantly. No signup, 100% private, runs in your browser." />
+    <link rel="canonical" href="https://pdfkit-xi.vercel.app/tools/split-pdf.html" />
+    <meta property="og:title" content="Split PDF — Split PDF Pages Online Free" />
+    <meta property="og:description" content="Split PDF pages into separate files or extract a range instantly. Free, private, no signup." />
+    <meta property="og:url" content="https://pdfkit-xi.vercel.app/tools/split-pdf.html" />
+    <meta property="og:type" content="website" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/tool.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+    <style>
+      .drop-zone {
+        border: 2px dashed var(--border);
+        border-radius: 16px;
+        padding: 48px 24px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.25s;
+        background: var(--bg);
+        margin-bottom: 20px;
+      }
+      .drop-zone:hover, .drop-zone.dragover {
+        border-color: var(--accent);
+        background: var(--bg-hover);
+      }
+      .drop-zone-icon { font-size: 48px; display: block; margin-bottom: 12px; }
+      .drop-zone p { color: var(--text-muted); margin-bottom: 4px; }
+      .drop-zone small { color: var(--text-muted); font-size: 13px; }
+      .drop-zone input { display: none; }
+
+      .file-info {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .file-info-icon { font-size: 28px; }
+      .file-info-text { flex: 1; min-width: 0; }
+      .file-info-name {
+        font-weight: 700;
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .file-info-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+      .file-info-remove {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .file-info-remove:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+      .mode-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        background: var(--bg);
+        padding: 6px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+      }
+      .mode-tab {
+        flex: 1;
+        padding: 10px 14px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: 0.2s;
+      }
+      .mode-tab.active {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .range-inputs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .range-inputs label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+      .range-inputs input {
+        padding: 12px 14px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+      }
+      .range-inputs input:focus { border-color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
+      </a>
+      <div class="header-actions">
+        <button class="lang-btn" onclick="toggleLang()" id="lang-btn">🌐 العربية</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="tool-container">
+        <a class="back-link" href="../index.html" data-en="← All tools" data-ar="← كل الأدوات">← All tools</a>
+
+        <div class="tool-header">
+          <h1 data-en="Split PDF" data-ar="تقسيم PDF">Split PDF</h1>
+          <p data-en="Split a PDF into separate pages, or extract a range." data-ar="قسّم PDF إلى صفحات منفصلة، أو استخرج نطاقًا.">Split a PDF into separate pages, or extract a range.</p>
+        </div>
+
+        <div class="tool-panel">
+          <label class="drop-zone" id="drop-zone">
+            <input type="file" id="file-input" accept="application/pdf" />
+            <span class="drop-zone-icon">📄</span>
+            <p data-en="Click or drop a PDF here" data-ar="انقر أو اسحب ملف PDF هنا">Click or drop a PDF here</p>
+            <small data-en="Single PDF file" data-ar="ملف PDF واحد">Single PDF file</small>
+          </label>
+
+          <div id="file-info-container"></div>
+
+          <div id="options" style="display: none;">
+            <div class="mode-tabs">
+              <button class="mode-tab active" data-mode="each" data-en="Split every page" data-ar="قسّم كل صفحة">Split every page</button>
+              <button class="mode-tab" data-mode="range" data-en="Extract range" data-ar="استخرج نطاقًا">Extract range</button>
+            </div>
+
+            <div class="range-inputs" id="range-inputs" style="display: none;">
+              <label>
+                <span data-en="From page" data-ar="من صفحة">From page</span>
+                <input type="number" id="range-from" min="1" value="1" />
+              </label>
+              <label>
+                <span data-en="To page" data-ar="إلى صفحة">To page</span>
+                <input type="number" id="range-to" min="1" value="1" />
+              </label>
+            </div>
+
+            <div class="tool-actions">
+              <button class="btn btn-primary" onclick="splitPDF()" data-en="Split PDF" data-ar="تقسيم PDF">Split PDF</button>
+              <button class="btn btn-secondary" onclick="clearAll()" data-en="Clear" data-ar="مسح">Clear</button>
+            </div>
+
+            <p id="status" style="margin-top: 16px; color: var(--text-muted); font-size: 14px;"></p>
+          </div>
+        </div>
+
+        <section class="tool-content">
+          <h2 data-en="What is Split PDF?" data-ar="ما هو تقسيم PDF؟">What is Split PDF?</h2>
+          <p data-en="Split PDF is a free online tool that divides a PDF into separate pages or extracts a specific range. Everything runs in your browser — your file never leaves your device." data-ar="تقسيم PDF أداة مجانية تقسم ملف PDF إلى صفحات منفصلة أو تستخرج نطاقًا محددًا. كل شيء يعمل في متصفحك — ملفك لا يغادر جهازك أبدًا.">Split PDF is a free online tool that divides a PDF into separate pages.</p>
+
+          <h2 data-en="How to use it" data-ar="كيف تستخدمه">How to use it</h2>
+          <ol>
+            <li data-en="Upload a PDF file." data-ar="ارفع ملف PDF.">Upload a PDF file.</li>
+            <li data-en="Choose Split every page or Extract range." data-ar="اختر قسّم كل صفحة أو استخرج نطاقًا.">Choose Split every page or Extract range.</li>
+            <li data-en="Click Split PDF." data-ar="اضغط تقسيم PDF.">Click Split PDF.</li>
+            <li data-en="Download the resulting file(s)." data-ar="حمّل الملفات الناتجة.">Download the resulting file(s).</li>
+          </ol>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <span class="brand brand-small">
+        <span class="brand-pdf">PDF</span><span class="brand-kit">KIT</span>
+      </span>
+      <p data-en="© 2026 PDFKit." data-ar="© 2026 PDFKit.">© 2026 PDFKit.</p>
+    </footer>
+
+    <script src="../js/lang.js"></script>
+    <script>
+      const { PDFDocument } = PDFLib;
+      const dropZone = document.getElementById("drop-zone");
+      const fileInput = document.getElementById("file-input");
+      const fileInfoContainer = document.getElementById("file-info-container");
+      const options = document.getElementById("options");
+      const rangeInputs = document.getElementById("range-inputs");
+      const status = document.getElementById("status");
+
+      let currentFile = null;
+      let currentPages = 0;
+      let mode = "each";
+
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+      });
+      dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+      });
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files[0]) handleFile(e.target.files[0]);
+      });
+
+      document.querySelectorAll(".mode-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".mode-tab").forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+          mode = tab.dataset.mode;
+          rangeInputs.style.display = mode === "range" ? "grid" : "none";
+        });
+      });
+
+      async function handleFile(file) {
+        if (file.type !== "application/pdf") return;
+
+        try {
+          const bytes = await file.arrayBuffer();
+          const pdf = await PDFDocument.load(bytes, { ignoreEncryption: true });
+          currentFile = file;
+          currentPages = pdf.getPageCount();
+          renderFileInfo();
+          options.style.display = "block";
+
+          document.getElementById("range-from").max = currentPages;
+          document.getElementById("range-to").max = currentPages;
+          document.getElementById("range-to").value = currentPages;
+        } catch (err) {
+          alert("Could not read PDF: " + err.message);
+        }
+      }
+
+      function renderFileInfo() {
+        if (!currentFile) {
+          fileInfoContainer.innerHTML = "";
+          return;
+        }
+        fileInfoContainer.innerHTML = `
+          <div class="file-info">
+            <span class="file-info-icon">📄</span>
+            <div class="file-info-text">
+              <div class="file-info-name">${currentFile.name}</div>
+              <div class="file-info-meta">${currentPages} page${currentPages !== 1 ? "s" : ""}</div>
+            </div>
+            <button class="file-info-remove" onclick="clearAll()">×</button>
+          </div>
+        `;
+      }
+
+      async function splitPDF() {
+        if (!currentFile) return;
+        status.textContent = "Splitting...";
+
+        try {
+          const bytes = await currentFile.arrayBuffer();
+          const srcPdf = await PDFDocument.load(bytes, { ignoreEncryption: true });
+
+          if (mode === "each") {
+            // Download a ZIP-like approach: download each page separately
+            for (let i = 0; i < currentPages; i++) {
+              const newPdf = await PDFDocument.create();
+              const [page] = await newPdf.copyPages(srcPdf, [i]);
+              newPdf.addPage(page);
+              const out = await newPdf.save();
+              downloadBlob(out, `page-${i + 1}.pdf`);
+              // Small delay to avoid browser blocking
+              await new Promise((r) => setTimeout(r, 150));
+            }
+            status.textContent = `✅ Split into ${currentPages} files.`;
+          } else {
+            // Extract range
+            const from = Math.max(1, parseInt(document.getElementById("range-from").value) || 1);
+            const to = Math.min(currentPages, parseInt(document.getElementById("range-to").value) || currentPages);
+
+            if (from > to) {
+              status.textContent = "❌ Invalid range.";
+              return;
+            }
+
+            const newPdf = await PDFDocument.create();
+            const indices = [];
+            for (let i = from - 1; i < to; i++) indices.push(i);
+            const pages = await newPdf.copyPages(srcPdf, indices);
+            pages.forEach((p) => newPdf.addPage(p));
+
+            const out = await newPdf.save();
+            downloadBlob(out, `pages-${from}-to-${to}.pdf`);
+            status.textContent = `✅ Extracted pages ${from}–${to}.`;
+          }
+        } catch (err) {
+          console.error(err);
+          status.textContent = "❌ Error: " + err.message;
+        }
+      }
+
+      function downloadBlob(bytes, name) {
+        const blob = new Blob([bytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      function clearAll() {
+        currentFile = null;
+        currentPages = 0;
+        fileInput.value = "";
+        options.style.display = "none";
+        status.textContent = "";
+        renderFileInfo();
+      }
+    </script>
+  </body>
+                                            </html>
