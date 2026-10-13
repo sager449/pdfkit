@@ -1,5 +1,5 @@
 /* =========================================
-   PDFKit Studio — Editor (Part 1: Core)
+   PDFKit Studio — Editor (Core)
    ========================================= */
 
 let project = null;
@@ -58,7 +58,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Setup error:", err);
   }
 });
-
 function setupHeader() {
   document.getElementById("save-btn")?.addEventListener("click", saveProjectNow);
   document.getElementById("undo-btn")?.addEventListener("click", undo);
@@ -133,9 +132,6 @@ function calculateScale() {
   const maxH = availableHeight / project.height;
   return Math.min(maxW, maxH, 1.2);
 }
-/* =========================================
-   Part 2: Elements & Tools
-   ========================================= */
 
 function createElementNode(el, scale, pageIdx) {
   if (el.type === "text") {
@@ -147,8 +143,8 @@ function createElementNode(el, scale, pageIdx) {
     div.style.fontSize = el.size * scale + "px";
     div.style.fontFamily = el.font || "Inter";
     div.style.color = el.color || "#1a1a1a";
-     div.style.direction = "auto";
-div.style.unicodeBidi = "plaintext";
+    div.style.direction = "auto";
+    div.style.unicodeBidi = "plaintext";
     div.style.fontWeight = el.bold ? "700" : "400";
     div.style.fontStyle = el.italic ? "italic" : "normal";
     if (el.width) div.style.width = el.width * scale + "px";
@@ -193,7 +189,6 @@ div.style.unicodeBidi = "plaintext";
 
   return null;
 }
-
 function makeDraggable(node, el, scale, pageIdx) {
   let startX, startY, startLeft, startTop;
   let dragging = false;
@@ -302,6 +297,11 @@ function deselectElement() {
   }
 }
 
+function getPoint(e) {
+  if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  if (e.changedTouches && e.changedTouches.length > 0) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+  return { x: e.clientX, y: e.clientY };
+  }
 function openToolPanel(tool) {
   const panel = document.getElementById("tool-panel");
   const content = document.getElementById("panel-content");
@@ -312,6 +312,7 @@ function openToolPanel(tool) {
   else if (tool === "draw") content.innerHTML = renderDrawPanel();
   else if (tool === "shape") content.innerHTML = renderShapePanel();
   else if (tool === "eraser") content.innerHTML = renderEraserPanel();
+  else if (tool === "image") content.innerHTML = renderImagePanel();
 
   panel.hidden = false;
   bindPanelEvents(tool);
@@ -320,17 +321,14 @@ function openToolPanel(tool) {
 function closePanel() {
   const panel = document.getElementById("tool-panel");
   if (panel) panel.hidden = true;
-       }
-/* =========================================
-   Part 3: Panels, Drawing, Save, Export
-   ========================================= */
+}
 
 function renderTextPanel() {
   return `
     <h3 class="panel-title">Text</h3>
     <div class="panel-row">
       <label class="panel-label">Content</label>
-      <textarea class="panel-textarea" id="text-content" placeholder="Type your text..."></textarea>
+      <textarea class="panel-textarea" id="text-content" placeholder="Type your text..." dir="auto"></textarea>
     </div>
     <div class="panel-row">
       <label class="panel-label">Font</label>
@@ -439,6 +437,15 @@ function renderEraserPanel() {
   `;
 }
 
+function renderImagePanel() {
+  return `
+    <h3 class="panel-title">Image</h3>
+    <p style="font-size:14px;color:var(--muted);text-align:center;padding:20px 0 8px;">
+      Add an image to your page.
+    </p>
+    <button class="panel-btn" id="add-image-btn">Choose Image</button>
+  `;
+}
 function bindPanelEvents(tool) {
   if (tool === "text") {
     const content = document.getElementById("text-content");
@@ -519,6 +526,12 @@ function bindPanelEvents(tool) {
     });
     document.getElementById("add-shape-btn")?.addEventListener("click", addShapeElement);
   }
+
+  if (tool === "image") {
+    document.getElementById("add-image-btn")?.addEventListener("click", () => {
+      document.getElementById("image-upload")?.click();
+    });
+  }
 }
 
 function addTextElement(text) {
@@ -576,7 +589,6 @@ function addShapeElement() {
   pushHistory();
   scheduleAutoSave();
 }
-
 function setupDrawing(pageEl, pageIdx) {
   const canvas = document.createElement("canvas");
   const scale = calculateScale();
@@ -645,12 +657,6 @@ function setupDrawing(pageEl, pageIdx) {
   canvas.addEventListener("touchstart", start, { passive: false });
   canvas.addEventListener("touchmove", move, { passive: false });
   canvas.addEventListener("touchend", end);
-}
-
-function getPoint(e) {
-  if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  if (e.changedTouches && e.changedTouches.length > 0) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-  return { x: e.clientX, y: e.clientY };
 }
 
 function pushHistory() {
@@ -771,3 +777,42 @@ function hexToRgb(hex) {
     b: parseInt(result[3], 16),
   } : { r: 0, g: 0, b: 0 };
 }
+
+/* ============ Image Upload ============ */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const fileInput = document.getElementById("image-upload");
+  fileInput?.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 300;
+        const ratio = img.width / img.height;
+        const w = Math.min(maxW, img.width);
+        const h = w / ratio;
+        const page = project.pages[currentPageIndex];
+        page.elements.push({
+          id: "el_" + Date.now(),
+          type: "image",
+          src: ev.target.result,
+          x: 40,
+          y: 40,
+          width: w,
+          height: h,
+        });
+        renderPages();
+        pushHistory();
+        scheduleAutoSave();
+        closePanel();
+        activeTool = null;
+        document.querySelectorAll(".tool-btn").forEach((b) => b.classList.remove("active"));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    fileInput.value = "";
+  });
+});
