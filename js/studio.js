@@ -1,43 +1,22 @@
 /* =========================================
-   PDFKit Studio — Editor
+   PDFKit Studio — Editor (Part 1: Core)
    ========================================= */
 
 let project = null;
 let currentPageIndex = 0;
 let activeTool = null;
 let selectedElement = null;
-
-/* Undo / Redo */
 let history = [];
 let historyIndex = -1;
 
-/* Tool settings */
 const toolSettings = {
-  text: {
-    text: "Type here",
-    font: "Inter",
-    size: 24,
-    color: "#1a1a1a",
-    bold: false,
-    italic: false,
-  },
-  highlight: {
-    color: "#fef08a",
-    size: 20,
-  },
-  draw: {
-    color: "#e53935",
-    size: 4,
-  },
-  shape: {
-    color: "#1a1a1a",
-    fill: "transparent",
-    type: "rect",
-  },
+  text: { text: "Type here", font: "Inter", size: 24, color: "#1a1a1a", bold: false, italic: false },
+  highlight: { color: "#fef08a", size: 20 },
+  draw: { color: "#e53935", size: 4 },
+  shape: { color: "#1a1a1a", fill: "transparent", type: "rect" },
   eraser: {},
 };
 
-/* ---------- Init ---------- */
 document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get("id");
@@ -47,10 +26,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  project = await getProject(projectId);
+  try {
+    project = await getProject(projectId);
+  } catch (err) {
+    console.error("Failed to load project:", err);
+  }
 
   if (!project) {
-    alert("Project not found");
+    alert("Project not found. Redirecting to home.");
     window.location.href = "index.html";
     return;
   }
@@ -63,76 +46,70 @@ document.addEventListener("DOMContentLoaded", async () => {
     }];
   }
 
-  document.getElementById("project-title").value = project.name || "Untitled";
+  const titleInput = document.getElementById("project-title");
+  if (titleInput) titleInput.value = project.name || "Untitled";
 
-  renderPages();
-  setupToolbar();
-  setupHeader();
-
-  pushHistory();
+  try {
+    renderPages();
+    setupToolbar();
+    setupHeader();
+    pushHistory();
+  } catch (err) {
+    console.error("Setup error:", err);
+  }
 });
 
-/* ---------- Header setup ---------- */
 function setupHeader() {
-  document.getElementById("save-btn").addEventListener("click", saveProjectNow);
-  document.getElementById("undo-btn").addEventListener("click", undo);
-  document.getElementById("redo-btn").addEventListener("click", redo);
-  document.getElementById("export-btn").addEventListener("click", exportProject);
+  document.getElementById("save-btn")?.addEventListener("click", saveProjectNow);
+  document.getElementById("undo-btn")?.addEventListener("click", undo);
+  document.getElementById("redo-btn")?.addEventListener("click", redo);
+  document.getElementById("export-btn")?.addEventListener("click", exportProject);
 
-  document.getElementById("project-title").addEventListener("input", (e) => {
+  document.getElementById("project-title")?.addEventListener("input", (e) => {
     project.name = e.target.value.trim() || "Untitled";
     scheduleAutoSave();
   });
 
-  document.getElementById("panel-close").addEventListener("click", closePanel);
+  document.getElementById("panel-close")?.addEventListener("click", closePanel);
 }
 
-/* ---------- Toolbar setup ---------- */
 function setupToolbar() {
   document.querySelectorAll(".tool-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const tool = btn.dataset.tool;
-
       if (activeTool === tool) {
         activeTool = null;
         btn.classList.remove("active");
         closePanel();
         return;
       }
-
       document.querySelectorAll(".tool-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       activeTool = tool;
       openToolPanel(tool);
     });
   });
-
-  document.getElementById("canvas-stage").addEventListener("click", (e) => {
-    if (e.target.id === "canvas-stage" || e.target.classList.contains("page-canvas")) {
-      deselectElement();
-    }
-  });
 }
 
-/* ---------- Pages rendering ---------- */
 function renderPages() {
   const stage = document.getElementById("canvas-stage");
+  if (!stage) return;
   stage.innerHTML = "";
+
+  const scale = calculateScale();
 
   project.pages.forEach((page, idx) => {
     const pageEl = document.createElement("div");
     pageEl.className = "page-canvas";
     pageEl.dataset.pageIndex = idx;
 
-    const scale = calculateScale();
     pageEl.style.width = project.width * scale + "px";
     pageEl.style.height = project.height * scale + "px";
     pageEl.style.background = page.background || "#ffffff";
 
-    page.pagescale = scale;
-
     page.elements.forEach((el) => {
-      pageEl.appendChild(createElementNode(el, scale, idx));
+      const node = createElementNode(el, scale, idx);
+      if (node) pageEl.appendChild(node);
     });
 
     if (activeTool === "draw") {
@@ -149,14 +126,17 @@ function renderPages() {
 
 function calculateScale() {
   const wrapper = document.getElementById("canvas-wrapper");
-  const availableWidth = wrapper.clientWidth - 48;
-  const availableHeight = window.innerHeight - 200;
+  if (!wrapper) return 1;
+  const availableWidth = wrapper.clientWidth - 40;
+  const availableHeight = window.innerHeight - 220;
   const maxW = availableWidth / project.width;
   const maxH = availableHeight / project.height;
-  return Math.min(maxW, maxH, 1.5);
+  return Math.min(maxW, maxH, 1.2);
 }
+/* =========================================
+   Part 2: Elements & Tools
+   ========================================= */
 
-/* ---------- Element nodes ---------- */
 function createElementNode(el, scale, pageIdx) {
   if (el.type === "text") {
     const div = document.createElement("div");
@@ -169,14 +149,13 @@ function createElementNode(el, scale, pageIdx) {
     div.style.color = el.color || "#1a1a1a";
     div.style.fontWeight = el.bold ? "700" : "400";
     div.style.fontStyle = el.italic ? "italic" : "normal";
-    div.style.width = el.width ? el.width * scale + "px" : "auto";
+    if (el.width) div.style.width = el.width * scale + "px";
     div.textContent = el.text || "";
-
-    div.innerHTML += '<span class="resize-handle"></span>';
-
+    const handle = document.createElement("span");
+    handle.className = "resize-handle";
+    div.appendChild(handle);
     makeDraggable(div, el, scale, pageIdx);
     makeResizable(div, el, scale, pageIdx);
-
     return div;
   }
 
@@ -188,11 +167,9 @@ function createElementNode(el, scale, pageIdx) {
     div.style.top = el.y * scale + "px";
     div.style.width = el.width * scale + "px";
     div.style.height = el.height * scale + "px";
-    div.innerHTML = `<img src="${el.src}" alt="" /><span class="resize-handle"></span>`;
-
+    div.innerHTML = '<img src="' + el.src + '" alt="" /><span class="resize-handle"></span>';
     makeDraggable(div, el, scale, pageIdx);
     makeResizable(div, el, scale, pageIdx);
-
     return div;
   }
 
@@ -207,17 +184,14 @@ function createElementNode(el, scale, pageIdx) {
     div.style.background = el.fill || el.color || "#fef08a";
     div.style.borderRadius = el.type === "shape" && el.shapeType === "circle" ? "50%" : "4px";
     div.innerHTML = '<span class="resize-handle"></span>';
-
     makeDraggable(div, el, scale, pageIdx);
     makeResizable(div, el, scale, pageIdx);
-
     return div;
   }
 
   return null;
 }
 
-/* ---------- Dragging ---------- */
 function makeDraggable(node, el, scale, pageIdx) {
   let startX, startY, startLeft, startTop;
   let dragging = false;
@@ -227,9 +201,9 @@ function makeDraggable(node, el, scale, pageIdx) {
     e.preventDefault();
     selectElement(node, el, pageIdx);
     dragging = true;
-    const point = getPoint(e);
-    startX = point.x;
-    startY = point.y;
+    const p = getPoint(e);
+    startX = p.x;
+    startY = p.y;
     startLeft = el.x;
     startTop = el.y;
     document.addEventListener("mousemove", onMove);
@@ -241,11 +215,9 @@ function makeDraggable(node, el, scale, pageIdx) {
   const onMove = (e) => {
     if (!dragging) return;
     e.preventDefault();
-    const point = getPoint(e);
-    const dx = (point.x - startX) / scale;
-    const dy = (point.y - startY) / scale;
-    el.x = startLeft + dx;
-    el.y = startTop + dy;
+    const p = getPoint(e);
+    el.x = startLeft + (p.x - startX) / scale;
+    el.y = startTop + (p.y - startY) / scale;
     node.style.left = el.x * scale + "px";
     node.style.top = el.y * scale + "px";
   };
@@ -265,7 +237,6 @@ function makeDraggable(node, el, scale, pageIdx) {
   node.addEventListener("touchstart", onStart, { passive: false });
 }
 
-/* ---------- Resizing ---------- */
 function makeResizable(node, el, scale, pageIdx) {
   const handle = node.querySelector(".resize-handle");
   if (!handle) return;
@@ -278,9 +249,9 @@ function makeResizable(node, el, scale, pageIdx) {
     e.stopPropagation();
     selectElement(node, el, pageIdx);
     resizing = true;
-    const point = getPoint(e);
-    startX = point.x;
-    startY = point.y;
+    const p = getPoint(e);
+    startX = p.x;
+    startY = p.y;
     startW = el.width || node.offsetWidth / scale;
     startH = el.height || node.offsetHeight / scale;
     document.addEventListener("mousemove", onMove);
@@ -292,11 +263,9 @@ function makeResizable(node, el, scale, pageIdx) {
   const onMove = (e) => {
     if (!resizing) return;
     e.preventDefault();
-    const point = getPoint(e);
-    const dw = (point.x - startX) / scale;
-    const dh = (point.y - startY) / scale;
-    el.width = Math.max(30, startW + dw);
-    el.height = Math.max(20, startH + dh);
+    const p = getPoint(e);
+    el.width = Math.max(30, startW + (p.x - startX) / scale);
+    el.height = Math.max(20, startH + (p.y - startY) / scale);
     node.style.width = el.width * scale + "px";
     node.style.height = el.height * scale + "px";
   };
@@ -316,7 +285,6 @@ function makeResizable(node, el, scale, pageIdx) {
   handle.addEventListener("touchstart", onStart, { passive: false });
 }
 
-/* ---------- Selection ---------- */
 function selectElement(node, el, pageIdx) {
   if (selectedElement && selectedElement.node !== node) {
     selectedElement.node.classList.remove("selected");
@@ -332,10 +300,10 @@ function deselectElement() {
   }
 }
 
-/* ---------- Tool panel ---------- */
 function openToolPanel(tool) {
   const panel = document.getElementById("tool-panel");
   const content = document.getElementById("panel-content");
+  if (!panel || !content) return;
 
   if (tool === "text") content.innerHTML = renderTextPanel();
   else if (tool === "highlight") content.innerHTML = renderHighlightPanel();
@@ -348,8 +316,12 @@ function openToolPanel(tool) {
 }
 
 function closePanel() {
-  document.getElementById("tool-panel").hidden = true;
-}
+  const panel = document.getElementById("tool-panel");
+  if (panel) panel.hidden = true;
+       }
+/* =========================================
+   Part 3: Panels, Drawing, Save, Export
+   ========================================= */
 
 function renderTextPanel() {
   return `
@@ -465,19 +437,15 @@ function renderEraserPanel() {
   `;
 }
 
-/* ---------- Panel events ---------- */
 function bindPanelEvents(tool) {
   if (tool === "text") {
     const content = document.getElementById("text-content");
     const sizeSlider = document.getElementById("text-size");
     const sizeValue = document.getElementById("size-value");
 
-    content.addEventListener("input", () => {
-      toolSettings.text.text = content.value;
-    });
-
-    sizeSlider.addEventListener("input", () => {
-      sizeValue.textContent = sizeSlider.value;
+    content?.addEventListener("input", () => { toolSettings.text.text = content.value; });
+    sizeSlider?.addEventListener("input", () => {
+      if (sizeValue) sizeValue.textContent = sizeSlider.value;
       toolSettings.text.size = parseInt(sizeSlider.value);
     });
 
@@ -497,8 +465,8 @@ function bindPanelEvents(tool) {
       });
     });
 
-    document.getElementById("add-text-btn").addEventListener("click", () => {
-      const text = content.value.trim() || toolSettings.text.text;
+    document.getElementById("add-text-btn")?.addEventListener("click", () => {
+      const text = content?.value.trim() || toolSettings.text.text;
       addTextElement(text);
     });
   }
@@ -511,8 +479,7 @@ function bindPanelEvents(tool) {
         toolSettings.highlight.color = btn.dataset.color;
       });
     });
-
-    document.getElementById("add-highlight-btn").addEventListener("click", addHighlightElement);
+    document.getElementById("add-highlight-btn")?.addEventListener("click", addHighlightElement);
   }
 
   if (tool === "draw") {
@@ -523,7 +490,6 @@ function bindPanelEvents(tool) {
         toolSettings.draw.color = btn.dataset.color;
       });
     });
-
     document.querySelectorAll("#brush-options .brush-size").forEach((btn) => {
       btn.addEventListener("click", () => {
         document.querySelectorAll("#brush-options .brush-size").forEach((b) => b.classList.remove("active"));
@@ -531,7 +497,6 @@ function bindPanelEvents(tool) {
         toolSettings.draw.size = parseInt(btn.dataset.size);
       });
     });
-
     renderPages();
   }
 
@@ -543,7 +508,6 @@ function bindPanelEvents(tool) {
         toolSettings.shape.type = btn.dataset.shape;
       });
     });
-
     document.querySelectorAll("#shape-colors .color-swatch").forEach((btn) => {
       btn.addEventListener("click", () => {
         document.querySelectorAll("#shape-colors .color-swatch").forEach((b) => b.classList.remove("active"));
@@ -551,29 +515,24 @@ function bindPanelEvents(tool) {
         toolSettings.shape.color = btn.dataset.color;
       });
     });
-
-    document.getElementById("add-shape-btn").addEventListener("click", addShapeElement);
+    document.getElementById("add-shape-btn")?.addEventListener("click", addShapeElement);
   }
 }
 
-/* ---------- Add elements ---------- */
 function addTextElement(text) {
   const page = project.pages[currentPageIndex];
-  const el = {
+  page.elements.push({
     id: "el_" + Date.now(),
     type: "text",
     text: text,
-    x: 50,
-    y: 50,
-    width: null,
-    height: null,
+    x: 40,
+    y: 40,
     font: toolSettings.text.font,
     size: toolSettings.text.size,
     color: toolSettings.text.color,
     bold: toolSettings.text.bold,
     italic: toolSettings.text.italic,
-  };
-  page.elements.push(el);
+  });
   renderPages();
   pushHistory();
   scheduleAutoSave();
@@ -583,4 +542,230 @@ function addTextElement(text) {
 }
 
 function addHighlightElement() {
-  const page = p
+  const page = project.pages[currentPageIndex];
+  page.elements.push({
+    id: "el_" + Date.now(),
+    type: "highlight",
+    x: 40,
+    y: 40,
+    width: 150,
+    height: 30,
+    color: toolSettings.highlight.color,
+  });
+  renderPages();
+  pushHistory();
+  scheduleAutoSave();
+}
+
+function addShapeElement() {
+  const page = project.pages[currentPageIndex];
+  page.elements.push({
+    id: "el_" + Date.now(),
+    type: "shape",
+    shapeType: toolSettings.shape.type,
+    x: 40,
+    y: 40,
+    width: 100,
+    height: 100,
+    color: toolSettings.shape.color,
+    fill: toolSettings.shape.color,
+  });
+  renderPages();
+  pushHistory();
+  scheduleAutoSave();
+}
+
+function setupDrawing(pageEl, pageIdx) {
+  const canvas = document.createElement("canvas");
+  const scale = calculateScale();
+  canvas.width = project.width * scale;
+  canvas.height = project.height * scale;
+  canvas.style.position = "absolute";
+  canvas.style.top = "0";
+  canvas.style.left = "0";
+  canvas.style.touchAction = "none";
+  canvas.style.zIndex = "5";
+
+  pageEl.appendChild(canvas);
+  const ctx = canvas.getContext("2d");
+  let drawing = false;
+
+  const getPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const p = getPoint(e);
+    return { x: p.x - rect.left, y: p.y - rect.top };
+  };
+
+  const start = (e) => {
+    e.preventDefault();
+    drawing = true;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    ctx.strokeStyle = toolSettings.draw.color;
+    ctx.lineWidth = toolSettings.draw.size * scale;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+  };
+
+  const move = (e) => {
+    if (!drawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+  };
+
+  const end = () => {
+    if (!drawing) return;
+    drawing = false;
+    const dataUrl = canvas.toDataURL("image/png");
+    project.pages[pageIdx].elements.push({
+      id: "el_" + Date.now(),
+      type: "image",
+      src: dataUrl,
+      x: 0,
+      y: 0,
+      width: project.width,
+      height: project.height,
+      isDrawing: true,
+    });
+    canvas.remove();
+    renderPages();
+    pushHistory();
+    scheduleAutoSave();
+  };
+
+  canvas.addEventListener("mousedown", start);
+  canvas.addEventListener("mousemove", move);
+  canvas.addEventListener("mouseup", end);
+  canvas.addEventListener("mouseleave", end);
+  canvas.addEventListener("touchstart", start, { passive: false });
+  canvas.addEventListener("touchmove", move, { passive: false });
+  canvas.addEventListener("touchend", end);
+}
+
+function getPoint(e) {
+  if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  if (e.changedTouches && e.changedTouches.length > 0) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+  return { x: e.clientX, y: e.clientY };
+}
+
+function pushHistory() {
+  const snapshot = JSON.stringify(project.pages);
+  if (historyIndex < history.length - 1) {
+    history = history.slice(0, historyIndex + 1);
+  }
+  history.push(snapshot);
+  if (history.length > 30) history.shift();
+  historyIndex = history.length - 1;
+  updateHistoryButtons();
+}
+
+function undo() {
+  if (historyIndex <= 0) return;
+  historyIndex--;
+  project.pages = JSON.parse(history[historyIndex]);
+  renderPages();
+  updateHistoryButtons();
+  scheduleAutoSave();
+}
+
+function redo() {
+  if (historyIndex >= history.length - 1) return;
+  historyIndex++;
+  project.pages = JSON.parse(history[historyIndex]);
+  renderPages();
+  updateHistoryButtons();
+  scheduleAutoSave();
+}
+
+function updateHistoryButtons() {
+  const undoBtn = document.getElementById("undo-btn");
+  const redoBtn = document.getElementById("redo-btn");
+  if (undoBtn) undoBtn.disabled = historyIndex <= 0;
+  if (redoBtn) redoBtn.disabled = historyIndex >= history.length - 1;
+}
+
+let autoSaveTimer = null;
+
+function scheduleAutoSave() {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(saveProjectNow, 1500);
+}
+
+async function saveProjectNow() {
+  if (!project) return;
+  try {
+    await saveProject(project);
+    const btn = document.getElementById("save-btn");
+    if (!btn) return;
+    const original = btn.innerHTML;
+    btn.innerHTML = "Saved";
+    setTimeout(() => { btn.innerHTML = original; }, 1200);
+  } catch (err) {
+    console.error("Save failed:", err);
+  }
+}
+
+async function exportProject() {
+  await saveProjectNow();
+  if (!window.jspdf) {
+    await new Promise((resolve) => {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+      s.onload = resolve;
+      document.head.appendChild(s);
+    });
+  }
+  exportAsPDF(window.jspdf.jsPDF);
+}
+
+async function exportAsPDF(jsPDF) {
+  const doc = new jsPDF({
+    orientation: project.width > project.height ? "landscape" : "portrait",
+    unit: "pt",
+    format: [project.width, project.height],
+  });
+
+  for (let i = 0; i < project.pages.length; i++) {
+    const page = project.pages[i];
+    if (i > 0) doc.addPage([project.width, project.height]);
+
+    doc.setFillColor(page.background || "#ffffff");
+    doc.rect(0, 0, project.width, project.height, "F");
+
+    for (const el of page.elements) {
+      if (el.type === "text") {
+        doc.setFontSize(el.size);
+        const rgb = hexToRgb(el.color);
+        doc.setTextColor(rgb.r, rgb.g, rgb.b);
+        doc.text(el.text, el.x, el.y + el.size);
+      } else if (el.type === "image" && el.src) {
+        try {
+          const format = el.src.includes("image/png") ? "PNG" : "JPEG";
+          doc.addImage(el.src, format, el.x, el.y, el.width, el.height);
+        } catch (e) { console.error(e); }
+      } else if (el.type === "highlight" || el.type === "shape") {
+        const rgb = hexToRgb(el.fill || el.color);
+        doc.setFillColor(rgb.r, rgb.g, rgb.b);
+        if (el.shapeType === "circle") {
+          doc.ellipse(el.x + el.width / 2, el.y + el.height / 2, el.width / 2, el.height / 2, "F");
+        } else {
+          doc.rect(el.x, el.y, el.width, el.height, "F");
+        }
+      }
+    }
+  }
+
+  doc.save((project.name || "project") + ".pdf");
+}
+
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16),
+  } : { r: 0, g: 0, b: 0 };
+}
