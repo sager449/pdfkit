@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Project — PDFKit Studio</title>
+    <meta name="description" content="Create a new PDF project — choose page size, orientation, and background." />
+    <link rel="canonical" href="https://pdfkit-xi.vercel.app/create.html" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/create.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        </span>
+        <span>PDF<span class="brand-kit">Kit</span> Studio</span>
+      </a>
+      <a class="header-btn" href="index.html" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </a>
+    </header>
+
+    <main class="container container-sm">
+      <div class="page-header">
+        <h1>New Project</h1>
+        <p>Choose a preset or set a custom size.</p>
+      </div>
+
+      <section class="form-section">
+        <label class="form-label">Project name</label>
+        <input type="text" class="form-input" id="project-name" placeholder="Untitled project" />
+      </section>
+
+      <section class="form-section">
+        <label class="form-label">Page size</label>
+        <div class="preset-grid" id="preset-grid">
+          <button class="preset" data-preset="a4">
+            <div class="preset-preview" style="--ratio: 1 / 1.414;"></div>
+            <span class="preset-name">A4</span>
+            <span class="preset-size">595 × 842 pt</span>
+          </button>
+          <button class="preset" data-preset="a5">
+            <div class="preset-preview" style="--ratio: 1 / 1.414;"></div>
+            <span class="preset-name">A5</span>
+            <span class="preset-size">420 × 595 pt</span>
+          </button>
+          <button class="preset" data-preset="a3">
+            <div class="preset-preview" style="--ratio: 1 / 1.414;"></div>
+            <span class="preset-name">A3</span>
+            <span class="preset-size">842 × 1191 pt</span>
+          </button>
+          <button class="preset" data-preset="letter">
+            <div class="preset-preview" style="--ratio: 8.5 / 11;"></div>
+            <span class="preset-name">Letter</span>
+            <span class="preset-size">612 × 792 pt</span>
+          </button>
+          <button class="preset" data-preset="legal">
+            <div class="preset-preview" style="--ratio: 8.5 / 14;"></div>
+            <span class="preset-name">Legal</span>
+            <span class="preset-size">612 × 1008 pt</span>
+          </button>
+          <button class="preset" data-preset="square">
+            <div class="preset-preview" style="--ratio: 1 / 1;"></div>
+            <span class="preset-name">Square</span>
+            <span class="preset-size">800 × 800 pt</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <label class="form-label">Orientation</label>
+        <div class="toggle-group" id="orientation-group">
+          <button class="toggle active" data-orientation="portrait">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6" y="3" width="12" height="18" rx="2"></rect>
+            </svg>
+            Portrait
+          </button>
+          <button class="toggle" data-orientation="landscape">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+            </svg>
+            Landscape
+          </button>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <label class="form-label">Background</label>
+        <div class="bg-grid" id="bg-grid">
+          <button class="bg-swatch active" data-bg="#ffffff" style="--c: #ffffff;">
+            <span class="swatch-label">White</span>
+          </button>
+          <button class="bg-swatch" data-bg="#fafafa" style="--c: #fafafa;">
+            <span class="swatch-label">Cream</span>
+          </button>
+          <button class="bg-swatch" data-bg="#f5f5f5" style="--c: #f5f5f5;">
+            <span class="swatch-label">Gray</span>
+          </button>
+          <button class="bg-swatch" data-bg="#1a1a1a" style="--c: #1a1a1a;">
+            <span class="swatch-label">Dark</span>
+          </button>
+        </div>
+      </section>
+
+      <div class="actions-row">
+        <button class="btn btn-secondary" onclick="window.location.href='index.html'">Cancel</button>
+        <button class="btn btn-primary" id="create-project-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Create Project
+        </button>
+      </div>
+    </main>
+
+    <script src="js/db.js"></script>
+    <script src="js/create.js"></script>
+  </body>
+          </html>
