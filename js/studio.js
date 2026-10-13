@@ -147,6 +147,8 @@ function createElementNode(el, scale, pageIdx) {
     div.style.fontSize = el.size * scale + "px";
     div.style.fontFamily = el.font || "Inter";
     div.style.color = el.color || "#1a1a1a";
+     div.style.direction = "auto";
+div.style.unicodeBidi = "plaintext";
     div.style.fontWeight = el.bold ? "700" : "400";
     div.style.fontStyle = el.italic ? "italic" : "normal";
     if (el.width) div.style.width = el.width * scale + "px";
