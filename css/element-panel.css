@@ -1,0 +1,281 @@
+/* =========================================
+   PDFKit Studio — Element Panel
+   لوحة تعديل العنصر المحدد
+   ========================================= */
+
+.element-panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--paper);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
+  padding: 16px 20px 24px;
+  z-index: 300;
+  max-height: 60vh;
+  overflow-y: auto;
+  animation: epSlideUp 0.25s ease;
+}
+
+.element-panel[hidden] { display: none; }
+
+@keyframes epSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.element-panel-content { padding: 0; }
+
+/* ---------- Header ---------- */
+.ep-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+  touch-action: none;
+}
+
+.ep-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.ep-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  background: var(--cream);
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.ep-close svg { width: 16px; height: 16px; }
+
+.ep-close:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ---------- Sections ---------- */
+.ep-section { margin-bottom: 16px; }
+
+.ep-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.ep-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  resize: vertical;
+  min-height: 60px;
+  transition: 0.2s;
+}
+
+.ep-textarea:focus { border-color: var(--accent); background: var(--paper); }
+
+.ep-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--line);
+  border-radius: 4px;
+  outline: none;
+}
+
+.ep-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.ep-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid #fff;
+}
+/* ---------- Fonts Grid ---------- */
+.ep-font-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.ep-font {
+  padding: 10px 6px;
+  background: var(--cream);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: 0.2s;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: inherit;
+}
+
+.ep-font:hover { border-color: var(--accent); }
+
+.ep-font.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ---------- Colors ---------- */
+.ep-colors {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ep-color {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  cursor: pointer;
+  transition: 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.ep-color:hover { transform: scale(1.1); }
+
+.ep-color.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ---------- Toggles ---------- */
+.ep-toggle-group {
+  display: flex;
+  gap: 8px;
+}
+
+.ep-toggle {
+  flex: 1;
+  height: 42px;
+  background: var(--cream);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--ink);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+
+.ep-toggle:hover { border-color: var(--accent); }
+
+.ep-toggle.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---------- Actions Row ---------- */
+.ep-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.ep-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 4px;
+  background: var(--cream);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+  text-align: center;
+}
+
+.ep-action svg {
+  width: 20px;
+  height: 20px;
+  color: var(--muted);
+}
+
+.ep-action span {
+  font-size: 10px;
+  letter-spacing: 0.2px;
+  color: var(--muted);
+}
+
+.ep-action:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.ep-action:hover svg,
+.ep-action:hover span { color: var(--accent); }
+
+.ep-action.ep-danger:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.ep-action.ep-danger:hover svg,
+.ep-action.ep-danger:hover span { color: #fff; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+  .element-panel {
+    padding: 14px 16px 20px;
+    max-height: 65vh;
+  }
+  .ep-font-grid { grid-template-columns: repeat(2, 1fr); }
+  .ep-color { width: 30px; height: 30px; }
+  .ep-action svg { width: 18px; height: 18px; }
+}
